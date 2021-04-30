@@ -1,0 +1,8 @@
+target/
+c8games
+*.ch8
+
+
+# Added by cargo
+
+/target
