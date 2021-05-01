@@ -121,10 +121,7 @@ fn main() -> io::Result<()> {
     let operations = lines.iter()
         .map::<Operation, fn(&String)->Operation>(|l|
             parse_line(l.as_str()).unwrap());
-    for i in operations {
-        do_operation(&mut grid, i);
-    }
-
+    operations.for_each(|o| do_operation(&mut grid, o));
     println!("There are {} lights on", count_lights(&grid));
     Ok(())
 }
