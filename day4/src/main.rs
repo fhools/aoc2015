@@ -24,8 +24,8 @@ fn check_hash_6_zeroes(hash: [u8;16]) -> bool {
 }
 
 // set part = 1 for day 1, = 2 for day 2 puzzle
-let part = 2;
 fn main() {
+    let part = 2;
     let mut i = 1;
     let key = "bgvyzdsv";
     loop {
