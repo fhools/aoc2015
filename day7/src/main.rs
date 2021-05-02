@@ -338,6 +338,31 @@ fn main() -> io::Result<()>{
     }
     //println!("mem: {:?}", mem);
     println!(" value of wire a is {}", mem.get("a").unwrap());
+
+
+    // Part 2
+    // Take value of a. Set B to that value, meaning we add an instruction for that
+    let sourceb = mem.get("a").unwrap();
+
+    let old_b_instr_text = "1674 -> b";
+    let old_b_instr = parse_line(old_b_instr_text).unwrap();
+    instr = instr.iter().filter(|i| **i != old_b_instr).cloned().collect();
+    let b_override_instr_text = format!("{} -> b", sourceb);
+    let new_b_instr = parse_line(&b_override_instr_text).unwrap();
+    instr.push(new_b_instr);
+
+    mem.clear();
+    exec_status.clear();
+
+    for _ in 0..instr.len() {
+        //    for _ in 0..5{
+             exec(&mut mem, &mut exec_status, &instr);
+             //println!("keys: {:?}\n\n", exec_status.keys());
+    }
+         //println!("mem: {:?}", mem);
+    println!(" part 2 value of wire a is {}", mem.get("a").unwrap());
+
+
     Ok(())
 }
 
