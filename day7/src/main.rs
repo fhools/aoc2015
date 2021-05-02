@@ -346,14 +346,16 @@ fn main() -> io::Result<()>{
 
     let old_b_instr_text = "1674 -> b";
     let old_b_instr = parse_line(old_b_instr_text).unwrap();
+    // Remove the old assignment of b
     instr = instr.iter().filter(|i| **i != old_b_instr).cloned().collect();
+    // Add the new assignment of b to the value of wire a for part 1
     let b_override_instr_text = format!("{} -> b", sourceb);
     let new_b_instr = parse_line(&b_override_instr_text).unwrap();
     instr.push(new_b_instr);
 
+    // Clear our signal values, clear execution flags, run again
     mem.clear();
     exec_status.clear();
-
     for _ in 0..instr.len() {
         //    for _ in 0..5{
              exec(&mut mem, &mut exec_status, &instr);
