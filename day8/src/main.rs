@@ -16,6 +16,8 @@ fn read_file(s: &str) -> Result<Vec<String>, io::Error> {
     }
 }
 
+
+// Part 1. Lets actually decode it
 fn formatstr(s: &str) -> Vec<u8> {
     let mut i : usize = 0;
     // remove starting and trailing '"'
@@ -53,6 +55,16 @@ fn formatstr(s: &str) -> Vec<u8> {
     }
     return data;
 }
+// Part 2 Lets just calculate the length
+fn len_encode(s: &str) -> usize {
+    s.chars().map::<i32, fn(char)->i32>(|c| {
+        match c {
+            '\\' | '"'  => 2,
+            _ => 1
+        }
+    }).sum::<i32>() as usize
+} 
+
 fn main() {
     let inputs = read_file("input.txt").unwrap();
     let total_delta : usize = inputs.iter().map(|l| {
@@ -64,4 +76,8 @@ fn main() {
     // let input = r#""\xff"#;
     // let result = formatstr(input);
     // println!("format: {:?}", result);
+    let part2_total_delta : usize = inputs.iter().map(|l| {
+        len_encode(l)  - l.len() + 2 // add 2 chars for the double quotes
+    }).sum();
+    println!("total difference part2: {}", part2_total_delta);
 }
