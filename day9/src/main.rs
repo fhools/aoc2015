@@ -16,7 +16,7 @@ fn read_file(s: &str) -> Result<Vec<String>, io::Error> {
     }
 }
 
-
+const PART : u8 = 2;
 #[derive(Debug, Eq, PartialEq, Clone)]
 struct Edge {
     v: i32,
@@ -25,30 +25,30 @@ struct Edge {
 }
 
 
-fn travel_salesman_helper(start: i32, edges: &Vec<Vec<Edge>>, unvisited_nodes: &Vec<i32>, total_distance: i32) -> Option<i32> {
+fn travel_salesman_helper(start: i32, edges: &Vec<Vec<Edge>>, unvisited_nodes: &Vec<i32>, total_distance: i32, cmp_op: fn(i32,i32) -> bool) -> Option<i32> {
     if unvisited_nodes.len() == 0 {
         return Some(total_distance)
     }
-    let mut min_cost : Option<i32> = None;
+    let mut min_max_cost : Option<i32> = None;
     for e in &edges[start as usize] {
         if unvisited_nodes.contains(&e.u)  {
             let mut edges2 = edges.clone();
             edges2[start as usize] = edges[start as usize].iter().filter(|e2| **e2!=*e).cloned().collect();
             let new_unvisited_nodes = unvisited_nodes.iter().filter(|w| **w != e.u).cloned().collect();
-            let cost = travel_salesman_helper(e.u, &edges2 , &new_unvisited_nodes , total_distance + e.cost);
+            let cost = travel_salesman_helper(e.u, &edges2 , &new_unvisited_nodes , total_distance + e.cost, cmp_op);
             if let Some(new_cost) = cost {
-                if None == min_cost {
-                    min_cost = Some(new_cost)
-                } else if let Some(old_min_cost) = min_cost {
-                    if new_cost < old_min_cost {
-                        min_cost = Some(new_cost);
+                if None == min_max_cost {
+                    min_max_cost = Some(new_cost)
+                } else if let Some(old_min_max_cost) = min_max_cost {
+                    if cmp_op(new_cost,old_min_max_cost) {
+                        min_max_cost = Some(new_cost);
                     }
                 }
             }
         }
     }
 
-    return min_cost;
+    return min_max_cost;
 } 
 
 fn main() {
@@ -94,22 +94,37 @@ fn main() {
             cost: cost });
     });
 
-    let mut min_cost : Option<i32> = None;
+    let mut min_max_cost : Option<i32> = None;
+
+    fn part1_cmp_op(new: i32, curr: i32) -> bool {
+        new < curr
+    }
+
+    fn part2_cmp_op(new:i32, curr: i32) -> bool {
+        new > curr
+    }
+
+    let cmp_op : fn(i32,i32) -> bool;
+    if PART == 1 {
+        cmp_op = part1_cmp_op;
+    } else {
+        cmp_op = part2_cmp_op;
+    }
     for i in &nodes {
         let new_edges = nodes.iter().filter(|u| **u != *i).cloned().collect();
-        let cost = travel_salesman_helper(*i, &edges, &new_edges, 0);
+        let cost = travel_salesman_helper(*i, &edges, &new_edges, 0, cmp_op);
         if let Some(new_cost) = cost {
-            if None == min_cost {
-                min_cost = Some(new_cost)
-            } else if let Some(old_min_cost) = min_cost {
-                if new_cost < old_min_cost {
-                    min_cost = Some(new_cost);
+            if None == min_max_cost {
+                min_max_cost = Some(new_cost)
+            } else if let Some(old_min_cost) = min_max_cost {
+                if cmp_op(new_cost,old_min_cost) {
+                    min_max_cost = Some(new_cost);
                 }
             }
         }
     }
-    if let Some(cost) = min_cost {
-        println!("min_cost: {}", cost);
+    if let Some(cost) = min_max_cost {
+        println!("cost: {}", cost);
     } else {
         println!("no route");
     }
