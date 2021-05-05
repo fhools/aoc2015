@@ -10,7 +10,7 @@ fn read_file(s: &str) -> Result<Vec<String>, io::Error> {
         let reader = BufReader::new(fh);
         return Ok(reader.lines().collect::<Result<_,_>>().unwrap());
     }  else if let Err(err) = fh {
-        return Err(err);
+        return Err(io::Error::new(err.kind(),"read_file fail"));
     } else {
         return Err(io::Error::new(io::ErrorKind::Other,"read_file fail"));
     }
@@ -25,7 +25,7 @@ struct Edge {
 }
 
 
-fn travel_salesman_helper(start: i32, edges: &Vec<Vec<Edge>>, unvisited_nodes: &Vec<i32>, total_distance: i32, cmp_op: fn(i32,i32) -> bool) -> Option<i32> {
+fn travel_cost(start: i32, edges: &Vec<Vec<Edge>>, unvisited_nodes: &Vec<i32>, total_distance: i32, cmp_op: fn(i32,i32) -> bool) -> Option<i32> {
     if unvisited_nodes.len() == 0 {
         return Some(total_distance)
     }
@@ -35,7 +35,7 @@ fn travel_salesman_helper(start: i32, edges: &Vec<Vec<Edge>>, unvisited_nodes: &
             let mut edges2 = edges.clone();
             edges2[start as usize] = edges[start as usize].iter().filter(|e2| **e2!=*e).cloned().collect();
             let new_unvisited_nodes = unvisited_nodes.iter().filter(|w| **w != e.u).cloned().collect();
-            let cost = travel_salesman_helper(e.u, &edges2 , &new_unvisited_nodes , total_distance + e.cost, cmp_op);
+            let cost = travel_cost(e.u, &edges2 , &new_unvisited_nodes , total_distance + e.cost, cmp_op);
             if let Some(new_cost) = cost {
                 if None == min_max_cost {
                     min_max_cost = Some(new_cost)
@@ -96,23 +96,20 @@ fn main() {
 
     let mut min_max_cost : Option<i32> = None;
 
-    fn part1_cmp_op(new: i32, curr: i32) -> bool {
-        new < curr
-    }
-
-    fn part2_cmp_op(new:i32, curr: i32) -> bool {
-        new > curr
-    }
 
     let cmp_op : fn(i32,i32) -> bool;
     if PART == 1 {
-        cmp_op = part1_cmp_op;
+        cmp_op = |new, curr| {
+            new < curr
+        }
     } else {
-        cmp_op = part2_cmp_op;
+        cmp_op = |new, curr| {
+            new > curr
+        }
     }
     for i in &nodes {
         let new_edges = nodes.iter().filter(|u| **u != *i).cloned().collect();
-        let cost = travel_salesman_helper(*i, &edges, &new_edges, 0, cmp_op);
+        let cost = travel_cost(*i, &edges, &new_edges, 0, cmp_op);
         if let Some(new_cost) = cost {
             if None == min_max_cost {
                 min_max_cost = Some(new_cost)
