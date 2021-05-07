@@ -17,14 +17,21 @@ fn get_gen_code(code_num:i32) -> u64 {
 
 
 fn main() {
-    // The grid size needs to be way a lot larger 
+    // The grid size needs to be a lot larger 
     // since are only computing the upper left triangle of the grid, not the 
-    // lower right triangle of the grid. Even though requested row is ~3000
+    // lower right triangle of the grid. Even though requested row, col is 
+    // ~3000,2900, we'll come up 10000 diagonals.
     const  GRIDSZ : usize = 10000;
     let mut grid: Vec<Vec<i32>> = Vec::new();
     for _ in 0..GRIDSZ {
         grid.push(vec![0; GRIDSZ]);
     }
+    // Compute a grid of code numbering i.e 
+    // 1 3 6 ...
+    // 2 5 ...
+    // 4 ...
+    // We then extract code number from requested row,col
+    // and then generate the nth code.
     grid[0][0] = 1;
     for i in 0..GRIDSZ {
         let diag = i+1;
