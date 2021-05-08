@@ -20,14 +20,7 @@ can exactly fit all 150 liters of eggnog?
 */
 fn count_solutions_find_min(v: &Vec<i32>, k: usize, cur_path: Vec<bool>, total: &mut i32, min_num: &mut i32) {
     if k == v.len() {
-        let mut sum : i32 = 0;
-        //println!("path: {}", cur_path.len());
-        for i in 0..cur_path.len() {
-            sum += match cur_path[i] {
-                true => v[i],
-                false => 0
-            }
-        }
+        let sum : i32 = cur_path.iter().enumerate().map(|(i, x)| match x { true => v[i], false => 0 }).sum();
         if sum == 150 {
             let num_containers  : i32 = cur_path.iter().map(|x| match x { true => 1, false => 0}).sum();
             if num_containers < *min_num {
