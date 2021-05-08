@@ -3,6 +3,7 @@ use std::io;
 use std::io::prelude::*;
 use std::io::BufReader;
 use std::cmp::{min, max};
+
 fn read_file(s: &str) -> Result<Vec<String>, io::Error> {
     let fh = File::open(s);
     if let Ok(fh) = fh {
@@ -14,6 +15,7 @@ fn read_file(s: &str) -> Result<Vec<String>, io::Error> {
         return Err(io::Error::new(io::ErrorKind::Other,"read_file fail"));
     }
 }
+
 #[derive(Debug)]
 enum Operation {
     On((i32,i32), (i32,i32)),
