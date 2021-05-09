@@ -1,0 +1,57 @@
+const  GRIDSZ : usize = 10;
+
+#[derive(Debug, Clone)]
+struct Board<E> where
+E: Debug+Clone {
+    type Item = E;
+    grid: Vec<Vec<E>>,
+    size: usize 
+}
+
+impl<E: Debug + Clone> Board<E>  {
+    fn new(sz: usize) -> Board<E> {
+        let mut board = Board<E> {
+            grid: Vec::new(),
+            size: sz
+        };
+
+        for _ in 0..board.size {
+            let row : Vec<E> = vec![E::default(); board.size]
+            board.grid.push(row);
+        }
+        board
+    }
+
+    fn visit<F>(&self, f: F) -> Board<E>
+    where 
+        F: Fn(E) -> E {
+        let mut board : Board<E> = self.clone();
+        for y in 0..self.size {
+            for x in 0..self.size {
+                board.grid[y][x] = f(self.grid[y][x]);
+            }
+        }
+        board
+    }
+
+    fn print(&self) -> String {
+        let mut s = String::new();
+        for row in &self.grid {
+            s = format!("{}{:?}\n", s, row);
+        }
+        s
+    }
+
+    fn get(x: usize, y: usize) -> Option<E> {
+        Some(E::default())
+    }
+}
+    
+
+fn main() {
+    let board = Board<i32>::new(GRIDSZ);
+    let newboard = board.visit(|i| {
+        i+1
+    });
+    println!("board: {}", newboard.print());
+}

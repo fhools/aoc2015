@@ -1,9 +1,10 @@
 use std::collections::HashMap;
+const PART : u8 = 2;
+
 use std::io::prelude::*;
 use std::io;
 use std::io::BufReader;
 use std::fs::File;
-const PART : u8 = 2;
 fn read_file(s: &str) -> Result<Vec<String>, io::Error> {
     let fh = File::open(s);
     if let Ok(fh) = fh {
