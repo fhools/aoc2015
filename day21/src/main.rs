@@ -29,34 +29,52 @@
             
 */
 
+const PART : u8 = 2;
 fn main() {
     let weapons : Vec<(i32,i32)> = vec![(8,4), (10,5), (25, 6), (40, 7), (74,8)];
     let armor : Vec<(i32,i32)> = vec![(0, 0), (13,1), (31,2), (53,3), (75,4), (102,5)];
     let offense_ring: Vec<(i32,i32)> = vec![(0,0), (25,1), (50,2), (100,3)];
     let defense_ring: Vec<(i32,i32)> = vec![(0,0), (20,1), (40,2), (80,3)];
 
-    let mut minprice = f32::MAX;
+    let mut price: f32;
+
+    if PART == 1 {
+        price = f32::MAX;
+    } else {
+        price = f32::MIN;
+    }
     for a in armor.iter() {
         for d in defense_ring.iter() {
             let bossdmg : f32 = 9.0 - (a.1 as f32) - (d.1 as f32);
             let turns_till_player_dies = (100.0 / bossdmg).ceil();
-            println!("armor: {} ring: {} bossdmg: {} turns: {}", a.1, d.1, bossdmg, turns_till_player_dies); 
+            //println!("armor: {} ring: {} bossdmg: {} turns: {}", a.1, d.1, bossdmg, turns_till_player_dies); 
             for w in weapons.iter() {
                 for o in offense_ring.iter() {
                     let playerdmg : f32 = (w.1 as f32) + (o.1 as f32) - 2.0;
                     let turns_till_boss_dies = (104.0 / playerdmg).ceil();
-                    if (turns_till_boss_dies as i32) <= (turns_till_player_dies as i32) {
-                        let price : f32 = (a.0 as f32) + (d.0 as f32) + (w.0 as f32) + (o.0 as f32);
-                        if price <= minprice {
-                            minprice = price;
+
+                    if PART == 1 {
+                        if (turns_till_boss_dies as i32) <= (turns_till_player_dies as i32) {
+                            let curprice : f32 = (a.0 as f32) + (d.0 as f32) + (w.0 as f32) + (o.0 as f32);
+                            if curprice <= price {
+                                price = curprice;
+                            }
                         }
                     }
+                    if PART == 2 {
+                        if (turns_till_boss_dies as i32) > (turns_till_player_dies as i32) {
+                            let curprice : f32 = (a.0 as f32) + (d.0 as f32) + (w.0 as f32) + (o.0 as f32);
+                            if curprice >= price {
+                                price = curprice;
+                            }
+                        }
+                    }   
                 }
             }
         }
     }
 
-    println!("minimum cost to win: {}", minprice);
+    println!("minimum cost to win/lose: {}", price);
 
   
 }
