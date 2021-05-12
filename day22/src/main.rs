@@ -67,35 +67,37 @@ fn main() {
   
     let mut spell_prototypes: Vec<Spell> = vec![];
 
-    // Do nothing spell
-    spell_prototypes.push(Spell{ name: "Do nothing".to_string(),cost: 0, damage: 0, hp_heal: 0, mana_regen: 0, armor_buff: 0, duration: 0});
+    const PART : u8 = 2;
+    // Do nothing spell    
     spell_prototypes.push(Spell{ name: "Magic missile".to_string(), cost: 53, damage: 4, hp_heal: 0, mana_regen: 0, armor_buff: 0, duration: 0});
-    spell_prototypes.push(Spell{ name: "Magic missile".to_string(), cost: 53, damage: 4, hp_heal: 0, mana_regen: 0, armor_buff: 0, duration: 0});
-    spell_prototypes.push(Spell{ name: "Drain".to_string(), cost: 73, damage: 2, hp_heal: 2, mana_regen: 0, armor_buff: 0, duration: 0});
-    spell_prototypes.push(Spell{ name: "Shield".to_string(), cost: 113, damage: 0, hp_heal: 0, mana_regen: 0, armor_buff: 7, duration: 5});
-    spell_prototypes.push(Spell{ name: "Shield".to_string(), cost: 113, damage: 0, hp_heal: 0, mana_regen: 0, armor_buff: 7, duration: 5});
-    spell_prototypes.push(Spell{ name: "Poison".to_string(), cost: 173, damage: 3, hp_heal: 0, mana_regen: 0, armor_buff: 0, duration: 5});
-    spell_prototypes.push(Spell{ name: "Poison".to_string(), cost: 173, damage: 3, hp_heal: 0, mana_regen: 0, armor_buff: 0, duration: 5});
-    spell_prototypes.push(Spell{ name: "Recharge".to_string(), cost: 229, damage: 0, hp_heal: 0, mana_regen: 101, armor_buff: 0, duration: 4});
-    spell_prototypes.push(Spell{ name: "Recharge".to_string(), cost: 229, damage: 0, hp_heal: 0, mana_regen: 101, armor_buff: 0, duration: 4});
-    spell_prototypes.push(Spell{ name: "Recharge".to_string(), cost: 229, damage: 0, hp_heal: 0, mana_regen: 101, armor_buff: 0, duration: 4});
-
+    spell_prototypes.push(Spell{ name: "Drain".to_string(), cost: 73, damage: 2, hp_heal: 2, mana_regen: 0, armor_buff: 0, duration: 0});   
+    spell_prototypes.push(Spell{ name: "Shield".to_string(), cost: 113, damage: 0, hp_heal: 0, mana_regen: 0, armor_buff: 7, duration: 6});   
+    spell_prototypes.push(Spell{ name: "Poison".to_string(), cost: 173, damage: 3, hp_heal: 0, mana_regen: 0, armor_buff: 0, duration: 6});
+    spell_prototypes.push(Spell{ name: "Recharge".to_string(), cost: 229, damage: 0, hp_heal: 0, mana_regen: 101, armor_buff: 0, duration: 5});   
    
     // Seed random number generate
     let die = Uniform::from(0..spell_prototypes.len());
-    const MAX_SIMS: u32 = 100000000;
+    
+    const MAX_SIMS: u32 = 100000;
     const BOSS_DAMAGE: i32 = 9;
     const BOSS_STARTING_HP: i32 = 51;
 
    
     let mut mincost: i32 = i32::MAX;
+    let mut mincasted: Vec<usize> = vec![];
     for _ in 0..MAX_SIMS {
         let mut player = Player::new();
         let mut bosshp = BOSS_STARTING_HP;
-        
-        while player.hp >= 1 && bosshp >= 1 && player.mana >= 1 {
+        let casted : Vec<usize> = vec![];
+        while player.hp >= 1 && bosshp >= 1 && player.mana >= 53
             // Player turn
             if player.turn {
+                if PART == 2 {
+                    player.hp -= 1;
+                    if player.hp <= 0 {
+                        break;
+                    }
+                }
                 // println!("-- Player turn -- ");
             } else {
                 // println!("-- Boss turn -- ");
@@ -116,9 +118,9 @@ fn main() {
                     bosshp -= cur_spell.damage;
                 }
 
-                player.activespells.entry(*k).and_modify(|e| {
-                    // println!("{}'s timer is now {}", e.name, e.duration);
+                player.activespells.entry(*k).and_modify(|e| {                   
                     (*e).duration -= 1;
+                     // println!("{}'s timer is now {}", e.name, e.duration);
                     if (*e).duration == 0 {
                         //  println!("{}'s is over.", e.name);
                         finishedspells.push(*k);
@@ -135,6 +137,12 @@ fn main() {
                 }
                 player.activespells.remove(f);
             }
+            
+            // NOTE: This was the key!!!!
+            // Did an effect spell kill the boss? 
+            if bosshp <= 0 {
+                break;
+            }
 
             if player.turn {
                 // Player's turn
@@ -142,7 +150,6 @@ fn main() {
                 // Pick random spell to cast, if it's not instant, add it to active spells
                 //let mut spellidx: usize = rand::thread_rng().gen_range(0..spell_prototypes.len()) as usize; // TODO: use rand
                 let mut spellidx: usize = die.sample(&mut rng) as usize; 
-                die.sample(&mut rng);
                 let mut chosen_spell = &spell_prototypes[spellidx];
 
                 loop {
@@ -151,7 +158,7 @@ fn main() {
                             //spellidx = rand::thread_rng().gen_range(0..spell_prototypes.len()) as usize;
                             spellidx = die.sample(&mut rng) as usize; 
                             chosen_spell = &spell_prototypes[spellidx];
-                        }
+                    }
                     break;
                 }
 
@@ -177,12 +184,11 @@ fn main() {
                         player.armor = castspell.armor_buff;
                     }
                     player.activespells.insert(spellidx, castspell);
-
-                    
                 }
 
                 player.mana_used += chosen_spell.cost;
                 player.mana -= chosen_spell.cost;
+                casted.push(spellidx);
                 
             } else {
                 // Boss's turn
@@ -202,8 +208,13 @@ fn main() {
         if player.hp >= 1 &&  bosshp <= 0 && player.mana_used < mincost {
             println!("Player wins!");
             mincost = player.mana_used;
+            mincasted = casted.clone();
         }
     }
 
     println!("Minimum mana: {}", mincost);
+    println!("Spells:");
+    for c in mincasted.iter() {
+        println!("{}", spell_prototypes[c].name);
+    }
 }
