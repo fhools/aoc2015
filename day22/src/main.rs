@@ -88,8 +88,8 @@ fn main() {
     for _ in 0..MAX_SIMS {
         let mut player = Player::new();
         let mut bosshp = BOSS_STARTING_HP;
-        let casted : Vec<usize> = vec![];
-        while player.hp >= 1 && bosshp >= 1 && player.mana >= 53
+        let mut casted : Vec<usize> = vec![];
+        while player.hp >= 1 && bosshp >= 1 && player.mana >= 53 {
             // Player turn
             if player.turn {
                 if PART == 2 {
@@ -202,7 +202,7 @@ fn main() {
             // println!("player hp: {} mp: {}   boss_hp: {}\n\n", player.hp, player.mana, bosshp);
              player.turn = !player.turn;
         }
-// 
+         
         // println!("Game ended. Player hp: {}, mp: {}, Boss hp: {}", player.hp, player.mana, bosshp);
         // println!("Mana used: {}", player.mana_used);
         if player.hp >= 1 &&  bosshp <= 0 && player.mana_used < mincost {
@@ -215,6 +215,6 @@ fn main() {
     println!("Minimum mana: {}", mincost);
     println!("Spells:");
     for c in mincasted.iter() {
-        println!("{}", spell_prototypes[c].name);
+        println!("{}", spell_prototypes[*c].name);
     }
 }
